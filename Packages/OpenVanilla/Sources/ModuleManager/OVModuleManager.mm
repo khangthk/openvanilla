@@ -478,6 +478,10 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     // TODO: Show error info
     NSString *targetPath = [userTableRoot stringByAppendingPathComponent:path.lastPathComponent];
     NSError *error = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:targetPath error:&error];
+    }
+
     BOOL success = [[NSFileManager defaultManager] copyItemAtPath:path toPath:targetPath error:&error];
     if (!success) {
         NSLog(@"Cannot copy %@ to %@, error: %@", path, targetPath, error);
@@ -571,6 +575,18 @@ static string InputMethodConfigIdentifier(const string &identifier) {
 - (void)setSharedAlphanumericKeyboardLayoutIdentifier:(NSString *)sharedAlphanumericKeyboardLayoutIdentifier
 {
     [[NSUserDefaults standardUserDefaults] setObject:sharedAlphanumericKeyboardLayoutIdentifier forKey:OVAlphanumericKeyboardLayoutKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)fallbackToSharedAlphanumericKeyboardLayoutWhenShiftPressed
+{
+    BOOL flag = [[NSUserDefaults standardUserDefaults] boolForKey:OVFallbackToAlphanumericKeyboardLayoutOnShiftKey];
+    return flag;
+}
+
+- (void)setFallbackToSharedAlphanumericKeyboardLayoutWhenShiftPressed:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:OVFallbackToAlphanumericKeyboardLayoutOnShiftKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
